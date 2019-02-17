@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul>
+  {% for playbook in playbooks %}
+  <li><a href="{{ url_for('ansible', playbook=playbook) }}">{{ playbook }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
