@@ -20,5 +20,6 @@ from ansigger import views
 urlpatterns = [
     re_path(r'^ansible/([\w\d\-_]+)$', views.ansible, name="ansible"),
     re_path(r'^job/([\w\d\-_]+)$', views.job, name="log"),
+    re_path(r'^job/([\w\d\-_]+)/html$', views.job_html, name="log-html"),
     path('', views.index),
 ]

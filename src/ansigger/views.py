@@ -46,3 +46,8 @@ def job(request, job_id):
             job.get_logs_as_json()
         )
 
+def job_html(request, job_id):
+    job = models.Job.objects.get(id=job_id)
+    return StreamingHttpResponse(
+        job.get_logs_as_html()
+    )

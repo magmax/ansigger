@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>Log for job {{ id }}</h2>
-    <ul id="log">
+    <h2>Log for job {{ job_id }}</h2>
+    <ul>
+        <log></log>
     </ul>
 
-<script>
-</script>
+     <iframe src="{% url "log-html" job_id %}" style="height: 600px;width:100%; align: center;"></iframe> 
 {% endblock content %}
 
