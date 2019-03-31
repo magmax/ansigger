@@ -1,28 +1,22 @@
+import datetime
 import subprocess
 import threading
-import datetime
-from queue import Queue, Empty
-from multiprocessing import Pool
+from queue import Empty, Queue
 
 
 def read_to_queue(stream, queue, kind):
-    for line in iter(stream.readline, b''):
-        queue.put(
-            dict(
-                timestamp=datetime.datetime.now(),
-                kind=kind,
-                line=line.rstrip()
-            )
-        )
+    for line in iter(stream.readline, b""):
+        now = datetime.datetime.now()
+        queue.put(dict(timestamp=now, kind=kind, line=line.rstrip()))
 
 
 def run_ansible(playbook):
     process = subprocess.Popen(
-        [f'./playbooks/{playbook}.yaml'],
+        [f"./playbooks/{playbook}.yaml"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         bufsize=1,
-        shell=True
+        shell=True,
     )
 
     queue = Queue()
@@ -32,20 +26,18 @@ def run_ansible(playbook):
     err.daemon = True
     out.start()
     err.start()
-   
-    try: 
+
+    try:
         while process.poll() is None or not queue.empty():
             try:
-                output = queue.get(timeout=.5)
-        
+                output = queue.get(timeout=0.5)
+
             except Empty:
                 continue
-        
+
             if not output:
                 continue
-            yield output    
+            yield output
     finally:
         out.join()
         err.join()
-
-

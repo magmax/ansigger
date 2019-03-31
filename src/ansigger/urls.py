@@ -13,13 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from ansigger import views
 from django.urls import path, re_path
 
-from ansigger import views 
-
 urlpatterns = [
-    re_path(r'^ansible/([\w\d\-_]+)$', views.ansible, name="ansible"),
-    re_path(r'^job/([\w\d\-_]+)$', views.job, name="log"),
-    re_path(r'^job/([\w\d\-_]+)/html$', views.job_html, name="log-html"),
-    path('', views.index),
+    re_path(r"^ansible/([\w\d\-_]+)$", views.ansible, name="ansible"),
+    re_path(r"^job/([\w\d\-_]+)$", views.job, name="log"),
+    re_path(r"^job/([\w\d\-_]+)/html$", views.job_html, name="log-html"),
+    path("", views.index),
 ]

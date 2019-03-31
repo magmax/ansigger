@@ -1,10 +1,11 @@
-from django.db import models
-import uuid
 import datetime
 import json
 import time
+import uuid
 
-EPOCH = datetime.datetime(1970,1,1)
+from django.db import models
+
+EPOCH = datetime.datetime(1970, 1, 1)
 
 
 class Job(models.Model):
@@ -15,9 +16,10 @@ class Job(models.Model):
         return id
 
     def get_logs(self):
-        last_id=-1
+        last_id = -1
         while True:
-            for log in Log.objects.filter(job=self, id__gt=last_id).order_by('id'):
+            query = Log.objects.filter(job=self, id__gt=last_id).order_by("id")
+            for log in query:
                 yield log
                 last_id = log.id
             time.sleep(0.2)
@@ -27,12 +29,12 @@ class Job(models.Model):
     def get_logs_as_json(self):
         for log in self.get_logs():
             yield log.as_json()
-            yield('\n')
+            yield ("\n")
 
     def get_logs_as_html(self):
         yield "<table>"
         for log in self.get_logs():
-            color = "#f00" if log.stream == 'stderr' else '#000'
+            color = "#f00" if log.stream == "stderr" else "#000"
             yield f'<tr style="color:{color}"><td><small>{log.timestamp}</small></td><td>{log.message}</td></tr>'
         yield "</table>"
         yield "=== FINISHED ==="
@@ -41,10 +43,7 @@ class Job(models.Model):
         if isinstance(message, bytes):
             message = message.decode()
         Log.objects.create(
-            job=self,
-            timestamp=timestamp,
-            message=message,
-            stream=stream,
+            job=self, timestamp=timestamp, message=message, stream=stream
         )
         print(message)
 
@@ -55,7 +54,7 @@ class Job(models.Model):
 
 class Log(models.Model):
     message = models.CharField(max_length=1024)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='jobs')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="jobs")
     timestamp = models.DateTimeField()
     stream = models.CharField(max_length=30)
 
@@ -63,8 +62,10 @@ class Log(models.Model):
         return "%s - %s" % (self.job.id, self.message)
 
     def as_json(self):
-        return json.dumps(dict(
-            message=self.message,
-            timestamp=(self.timestamp - EPOCH).total_seconds(),
-            stream=self.stream,
-        ))
+        return json.dumps(
+            dict(
+                message=self.message,
+                timestamp=(self.timestamp - EPOCH).total_seconds(),
+                stream=self.stream,
+            )
+        )
