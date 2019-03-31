@@ -18,7 +18,7 @@ class Job(models.Model):
     def get_logs(self):
         last_id = -1
         while True:
-            query = Log.objects.filter(job=self, id__gt=last_id).order_by("id")
+            query = Output.objects.filter(job=self, id__gt=last_id).order_by("id")
             for log in query:
                 yield log
                 last_id = log.id
@@ -35,14 +35,14 @@ class Job(models.Model):
         yield "<table>"
         for log in self.get_logs():
             color = "#f00" if log.stream == "stderr" else "#000"
-            yield f'<tr style="color:{color}"><td><small>{log.timestamp}</small></td><td>{log.message}</td></tr>'
+            yield f'<tr style="color:{color}"><td><small>{log.timestamp}</small></td><td>{log.message}</td></tr>'  # NOQA
         yield "</table>"
         yield "=== FINISHED ==="
 
     def add_line(self, timestamp, stream, message):
         if isinstance(message, bytes):
             message = message.decode()
-        Log.objects.create(
+        Output.objects.create(
             job=self, timestamp=timestamp, message=message, stream=stream
         )
         print(message)
@@ -52,7 +52,7 @@ class Job(models.Model):
         self.save()
 
 
-class Log(models.Model):
+class Output(models.Model):
     message = models.CharField(max_length=1024)
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="jobs")
     timestamp = models.DateTimeField()
