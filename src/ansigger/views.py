@@ -7,9 +7,7 @@ from utils import run_ansible_async
 
 
 def index(request):
-    pb = [
-        os.path.splitext(x)[0] for x in os.listdir("playbooks/") if x.endswith(".yaml")
-    ]
+    pb = [os.path.splitext(x)[0] for x in os.listdir("playbooks/") if x.endswith(".yaml")]
     return render(request, "index.html", context=dict(playbooks=pb))
 
 
@@ -26,10 +24,11 @@ def ansible(request, playbook):
 
 def job(request, job_id):
     if request.method == "GET":
-        if "text/html" in request.META.get("HTTP_ACCEPT"):
-            return render(request, "job.html", context=dict(job_id=job_id))
-        job = models.Job.objects.get(id=job_id)
-        return StreamingHttpResponse(job.get_logs_as_json())
+        print(request.META.get("HTTP_ACCEPT"))
+        if "application/x-ndjson" in request.META.get("HTTP_ACCEPT"):
+            job = models.Job.objects.get(id=job_id)
+            return StreamingHttpResponse(job.get_logs_as_json())
+    return render(request, "job.html", context=dict(job_id=job_id))
 
 
 def job_html(request, job_id):

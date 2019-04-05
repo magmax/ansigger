@@ -3,8 +3,9 @@
 {% block content %}
     <h2>Log for job {{ job_id }}</h2>
 
+<div class="row">
     <div id="log">
-      <table>
+      <table class="table table-hover table-sm">
         <thead>
         </thead>
         <tbody>
@@ -18,11 +19,14 @@
       <p v-if="finished">=== FINISHED ===</p>
 
     </div>
+</div>
+{% endblock content %}
 
 
+{% block javascript %}
     <script>
 Vue.component('log', {
-  template: '<tr :style="entry.style"><td><small>${new Date(entry.timestamp * 1000)}</small></td><td><pre>${entry.message}</pre></td></tr>',
+  template: '<tr :class="entry.style"><td><small>${new Date(entry.timestamp * 1000).toLocaleString()}</small></td><td><pre>${entry.message}</pre></td></tr>',
   delimiters: ['${', '}'],
   props: [ 'entry' ]
 });
@@ -40,7 +44,7 @@ var app = new Vue({
   methods: {
     addEntry(entry) {
       var entry = JSON.parse(entry);
-      entry['style'] = entry['stream'] == 'stderr' ? "color:#f00" : "";
+      entry['style'] = entry['stream'] == 'stderr' ? "table-danger" : "";
       this.logs.push(entry);
     },
     init() {
@@ -59,6 +63,10 @@ var app = new Vue({
         }
       }
       $.ajax(window.location.href, {
+          accepts: {
+            ndjson: 'application/x-ndjson'
+          },
+          dataType: 'ndjson',
           xhrFields: {
               onprogress: function(e) {
                 print(e.currentTarget.response);
@@ -76,5 +84,5 @@ app.init();
 
     </script>
 
-{% endblock content %}
+{% endblock javascript %}
 

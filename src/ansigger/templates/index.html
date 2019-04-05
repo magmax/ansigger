@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>Content for My App</h2>
+    <h2>Available playbooks</h2>
     <ul>
     {% for playbook in playbooks %}
         <li><a href="{% url 'ansible' playbook %}">{{ playbook }}</a></li>
