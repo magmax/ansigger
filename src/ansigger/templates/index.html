@@ -4,7 +4,7 @@
     <h2>Available playbooks</h2>
     <ul>
     {% for playbook in playbooks %}
-        <li><a href="{% url 'ansible' playbook %}">{{ playbook }}</a></li>
+        <li><a href="{% url 'ansible' playbook.name %}">{{ playbook.name }}</a></li>
     {% endfor %}
     </ul>
 {% endblock content %}

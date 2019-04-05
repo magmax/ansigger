@@ -1,14 +1,38 @@
+import logging
 import os
 
+import yaml
 from ansigger import models
 from django.http import StreamingHttpResponse
 from django.shortcuts import redirect, render
 from utils import run_ansible_async
 
 
+def read_playbooks(directory):
+    for playbook in (
+        x for x in os.listdir("playbooks/") if x.endswith((".yaml", ".yml"))
+    ):
+        name = os.path.splitext(playbook)[0]
+        try:
+            with open(os.path.join(directory, playbook)) as fd:
+                content = yaml.load(fd)
+            data = dict(name=name)
+            for res in content:
+                if res.get("hosts") != "ansigger":
+                    continue
+                data["description"] = res.get("description")
+                break
+            yield data
+        except yaml.YAMLError:
+            logging.getLogger(__file__).exception(
+                f"File {playbook} contains errors and will be ignored"
+            )
+
+
 def index(request):
-    pb = [os.path.splitext(x)[0] for x in os.listdir("playbooks/") if x.endswith(".yaml")]
-    return render(request, "index.html", context=dict(playbooks=pb))
+    return render(
+        request, "index.html", context=dict(playbooks=read_playbooks("./playbooks"))
+    )
 
 
 def ansible_response_generator(playbook):

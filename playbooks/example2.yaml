@@ -1,0 +1,19 @@
+#!/usr/bin/env ansible-playbook
+
+- name: "This is an ansigger example description"
+  hosts: ansigger
+  vars:
+    foo: 
+      type: string
+    bar: 
+      type: int
+
+- name: minimal ansible hello world
+  hosts: localhost
+  connection: local
+#  gather_facts: false
+
+  tasks:
+    - name: "Show the hello world message"
+      debug:
+       msg: "hello world"
