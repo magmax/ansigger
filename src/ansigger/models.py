@@ -55,7 +55,7 @@ class Job(models.Model):
 
 class Output(models.Model):
     message = models.CharField(max_length=1024)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="jobs")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="output")
     timestamp = models.DateTimeField()
     stream = models.CharField(max_length=30)
 
@@ -65,6 +65,7 @@ class Output(models.Model):
     def as_json(self):
         return json.dumps(
             dict(
+                id=self.id,
                 message=self.message,
                 timestamp=(self.timestamp - EPOCH).total_seconds(),
                 stream=self.stream,

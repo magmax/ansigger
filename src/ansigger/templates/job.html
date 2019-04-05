@@ -2,10 +2,79 @@
 
 {% block content %}
     <h2>Log for job {{ job_id }}</h2>
-    <ul>
-        <log></log>
-    </ul>
 
-     <iframe src="{% url "log-html" job_id %}" style="height: 600px;width:100%; align: center;"></iframe>
+    <div id="log">
+      <table>
+        <thead>
+        </thead>
+        <tbody>
+          <log 
+              v-for="entry in logs"
+              :key="entry.id"
+              :entry="entry"
+          ></log>
+        <tbody>
+      </table>
+      <p v-if="finished">=== FINISHED ===</p>
+
+    </div>
+
+
+    <script>
+Vue.component('log', {
+  template: '<tr :style="entry.style"><td><small>${new Date(entry.timestamp * 1000)}</small></td><td><pre>${entry.message}</pre></td></tr>',
+  delimiters: ['${', '}'],
+  props: [ 'entry' ]
+});
+
+var app = new Vue({
+  el: '#log',
+  delimiters: ['${', '}'],
+  data: function() {
+    return {
+      message: 'loading', 
+      finished: false,
+      logs: []
+    }
+  },
+  methods: {
+    addEntry(entry) {
+      var entry = JSON.parse(entry);
+      entry['style'] = entry['stream'] == 'stderr' ? "color:#f00" : "";
+      this.logs.push(entry);
+    },
+    init() {
+      this.message="downloading..."
+      var cursor = 0;
+      var buffer = "";
+      var print = function(response) {
+        var a = response.substring(cursor).trim().split('\n')
+        var i;
+        try {
+            for (i=0; i<a.length; i++) {
+              app.addEntry(a[i]);
+              cursor += a[i].length + 1;
+            }
+        } catch {
+        }
+      }
+      $.ajax(window.location.href, {
+          xhrFields: {
+              onprogress: function(e) {
+                print(e.currentTarget.response);
+              }
+          }
+      })
+      .done(function(data)
+      {
+          app.finished = true;
+      });
+    }
+  }
+});
+app.init();
+
+    </script>
+
 {% endblock content %}
 
